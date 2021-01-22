@@ -1,4 +1,8 @@
-#include  "DHTesp.h"
+#include "WiFi.h"
+#include "ESPAsyncWebServer.h"
+#include <ESPAsyncTCP.h>
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
 
 #define DHTpin 15 // nr 15 of the esp32 
 
@@ -6,6 +10,29 @@ DHTesp dht;
 
 void setup(){
   Serial.begin(115200);
-  Serial.printIn();
-  Serial.printIN("Status\tHumdidty(C)\t(F)tHeatIndex(C)\t(F)");
+  Serial.println();
+  Serial.println("Status\tHumidity (%)\tTemperature (C)\t(F)\tHeatIndex (C)\t(F)");
+  //ik gebruik dht11. 
+dht.setup(DHTpin, DHTesp::DHT11); 
+}
+
+
+
+void loop(){
+  delay(dht.getMinimumSamplingPeriod());
+
+  float humidity = dht.getHumidity();
+  float temperature = dht.getTemperature();
+
+  Serial.print(dht.getStatusString());
+  Serial.print("\t");
+  Serial.print(humidity, 1);
+  Serial.print("\t\t");
+  Serial.print(temperature, 1);
+  Serial.print("\t\t");
+  Serial.print(dht.toFahrenheit(temperature), 1);
+  Serial.print("\t\t");
+  Serial.print(dht.computeHeatIndex(temperature, humidity, false), 1);
+  Serial.print("\t\t");
+  Serial.println(dht.computeHeatIndex(dht.toFahrenheit(temperature), humidity, true), 1);
 }
