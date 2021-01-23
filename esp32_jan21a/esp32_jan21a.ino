@@ -1,38 +1,35 @@
+#include <AsyncTCP.h>
+#include <Adafruit_Sensor.h>
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
 #include <ESPAsyncTCP.h>
-#include <Adafruit_Sensor.h>
 #include <DHT.h>
+#include <DHTesp.h>
 
-#define DHTpin 15 // nr 15 of the esp32 
 
-DHTesp dht;
+// Replace with your network credentials
+const char* ssid = "REPLACE_WITH_YOUR_SSID";
+const char* password = "REPLACE_WITH_YOUR_PASSWORD";
 
-void setup(){
-  Serial.begin(115200);
-  Serial.println();
-  Serial.println("Status\tHumidity (%)\tTemperature (C)\t(F)\tHeatIndex (C)\t(F)");
-  //ik gebruik dht11. 
-dht.setup(DHTpin, DHTesp::DHT11); 
+#define DHTPIN 27     // Digital pin connected to the DHT sensor
+#define DHTTYPE    DHT11     // DHT 11
+
+DHT dht(DHTPIN, DHTTYPE);
+
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(80);
+
+String readTemp() {
+  float t = dht.readTemperature();
+
+  if (isnan(t)) {
+    Serial.println("Failed to read from DHT sensor");
+    return "--";
+  } else {
+    Serial.println(t);
+    return String(t);
+  }
+
 }
 
-
-
-void loop(){
-  delay(dht.getMinimumSamplingPeriod());
-
-  float humidity = dht.getHumidity();
-  float temperature = dht.getTemperature();
-
-  Serial.print(dht.getStatusString());
-  Serial.print("\t");
-  Serial.print(humidity, 1);
-  Serial.print("\t\t");
-  Serial.print(temperature, 1);
-  Serial.print("\t\t");
-  Serial.print(dht.toFahrenheit(temperature), 1);
-  Serial.print("\t\t");
-  Serial.print(dht.computeHeatIndex(temperature, humidity, false), 1);
-  Serial.print("\t\t");
-  Serial.println(dht.computeHeatIndex(dht.toFahrenheit(temperature), humidity, true), 1);
 }
