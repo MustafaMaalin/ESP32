@@ -22,6 +22,7 @@ AsyncWebServer server(80);
 String readTemp() {
   float t = dht.readTemperature();
 
+  // here we check if there are any failed reads
   if (isnan(t)) {
     Serial.println("Failed to read from DHT sensor");
     return "--";
@@ -29,7 +30,15 @@ String readTemp() {
     Serial.println(t);
     return String(t);
   }
-
 }
 
+String readHum() {
+  float h = dht.readHumidity();
+  if (isnan(h)) {
+    Serial.println("Failed to read from DHT sensor");
+    return "--";
+  } else {
+    Serial.println(h);
+    return String(h);
+  }
 }
